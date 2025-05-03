@@ -1,6 +1,6 @@
-console.log("My name  Sachin Vitnor");
+console.log("My name Sachin Vitnor");
 const path = require("path");
-import path from "path";
+// import path from "path";
 
 console.log(__filename);
 console.log(__dirname);
