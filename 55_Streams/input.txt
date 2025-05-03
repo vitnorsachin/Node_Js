@@ -1,0 +1,4 @@
+This is an example file.
+We are learning about streams in Node.js
+Streams allows us to read and write data efficiently
+Let's process this file in chunks of 16 bytes !
