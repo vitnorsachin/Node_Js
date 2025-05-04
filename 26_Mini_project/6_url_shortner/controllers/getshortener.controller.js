@@ -1,4 +1,4 @@
-import { loadLinks } from "../models/shortener.model.js";
+import { loadLinks, getLinkByShortCode } from "../models/shortener.model.js";
 
 // Show page index.ejs file to browser
 export const getShortenerPage = async (req, res) => {
@@ -15,11 +15,11 @@ export const getShortenerPage = async (req, res) => {
 export const redirectToShortLink = async (req, res) => {
   try {
     const { shortCode } = req.params;
-    const links = await loadLinks();
+    const link = await getLinkByShortCode(shortCode);
 
-    if (!links[shortCode]) res.status(404).send("404 error occurred");
+    if (!link) return res.redirect("/404");
 
-    res.redirect(links[shortCode]);
+    res.redirect(link.url);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error from ");

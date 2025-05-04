@@ -3,7 +3,7 @@ import express from "express";
 import { shortenerRoutes } from "./routes/shortner.routes.js";
 
 const app = express();
-const PORT = 3002;
+const PORT = 3001;
 
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));

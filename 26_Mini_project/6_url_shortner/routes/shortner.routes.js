@@ -5,14 +5,12 @@ import { redirectToShortLink, getShortenerPage, } from "../controllers/getshorte
 
 const router = Router();
 
+router.get("/", getShortenerPage);
+router.post("/", postURLShortener);
+router.get("/:shortCode", redirectToShortLink);
+
 router.get("/report", (req, res) => { // This is for show report.ejs file to browser
   res.render("report", { students });
 });
-
-router.get("/", getShortenerPage);
-
-router.post("/", postURLShortener);
-
-router.get("/:shortCode", redirectToShortLink);
 
 export const shortenerRoutes = router;
