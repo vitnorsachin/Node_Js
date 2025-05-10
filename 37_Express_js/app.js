@@ -1,3 +1,35 @@
+// 47. Handle form submission in Express || Get & Post method
+import express from "express";
+import path from "path";
+const app = express();
+const PORT = 3005;
+
+const staticPath = path.join(import.meta.dirname, "public");
+app.use(express.static(staticPath));
+app.use(express.urlencoded({ extended: true }));
+
+// app.get("/contact", (req, res) => { // get data from form
+//   console.log(req.query);
+//   res.send("Data get")
+// });
+
+app.post("/contact", (req, res) => {  // get data from form
+  console.log(req.body);
+  res.send("Data Get ✅");
+});
+
+app.use((req, res) => {  // middleware for 404
+  res
+    .status(404)
+    .sendFile(path.join(import.meta.dirname, "public", "404.html"));
+});
+
+app.listen(PORT, () => {
+  console.log("Server Running");
+});
+
+
+
 // video No.40
 // import express from "express";
 // import chalk from "chalk";
@@ -105,33 +137,3 @@
 // app.listen(PORT, () => {
 //   console.log("Server Running");
 // });
-
-// 47. Handle form submission in Express || Get & Post method
-import express from "express";
-import path from "path";
-const app = express();
-const PORT = 3005;
-
-const staticPath = path.join(import.meta.dirname, "public");
-app.use(express.static(staticPath));
-app.use(express.urlencoded({ extended: true }));
-
-// app.get("/contact", (req, res) => { // get data from form
-//   console.log(req.query);
-//   res.send("Data get")
-// });
-
-app.post("/contact", (req, res) => {  // get data from form
-  console.log(req.body);
-  res.send("Data Get ✅");
-});
-
-app.use((req, res) => {  // middleware for 404
-  res
-    .status(404)
-    .sendFile(path.join(import.meta.dirname, "public", "404.html"));
-});
-
-app.listen(PORT, () => {
-  console.log("Server Running");
-});

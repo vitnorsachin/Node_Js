@@ -1,0 +1,131 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  font-family: sans-serif;
+}
+
+.container-body {
+  /* background-color: #f0f4f8; */
+  background-color: #f0f4f8;
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.container {
+  min-width: 300px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.container h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+.container h2 {
+  margin-block: 20px;
+}
+
+form div {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+div label {
+  /* font-weight: 500; */
+  font-size: 14px;
+  font: bolder;
+  margin-bottom: 5px;
+  display: block;
+}
+
+input[type="url"],
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  font-size: 1rem;
+  border-bottom: 2px solid black;
+}
+
+button {
+  background-color: #4a90e2;
+  color: #fff;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.urls {
+  padding: 0px;
+}
+.urls li {
+  list-style: none;
+  box-shadow: 3px 0px 8px 0px rgba(0, 0, 0, 0.3);
+  padding: 4px;
+  text-align: left;
+  margin-block: 4px;
+}
+.urls li a {
+  text-decoration: none;
+  color: rgb(0, 131, 246);
+}
+
+
+
+
+
+/* css for header.ejs file */
+.navbar {
+  background-color: #2f3348;
+  padding: 30px;
+}
+
+.navbar-links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  list-style: none;
+}
+.navbar-links li a {
+  color: white;
+  text-decoration: none;
+}
+
+
+
+
+
+/* css for report.ejs file */
+.report-section {
+  max-width: 1200px;
+  margin-inline: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.report-section ul {
+  background-color: #f0f1f1;
+  border-radius: 10px;
+  box-shadow: 1px 2px 8px 0px rgba(0, 0, 0, 0.4);
+  list-style: none;
+  padding: 10px;
+  padding-left: 10px;
+}
+.report-section ul li {
+  padding-left: 10px;
+}

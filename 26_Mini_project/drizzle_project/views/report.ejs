@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <%- include('header') %>
+     
+    <div style="display: flex;flex-direction: column;justify-content: center;align-items: center;">
+      <h2 style="margin-bottom: 40px; margin-top: 8%">Student report card</h2>
+      <section class="report-section">
+        <% students.map((student)=>{%>
+        <ul style="padding-left: 0px">
+          <li>Name:<b> <%= student.name %></b></li>
+          <li>CGPA:<b> <%= student.grade %></b></li>
+          <li>Subject:<b> <%= student.subject %></b></li>
+        </ul>
+        <%})%>
+      </section>
+    </div>
+  </body>
+</html>
