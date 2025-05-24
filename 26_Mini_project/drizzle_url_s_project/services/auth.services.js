@@ -1,6 +1,6 @@
 import { ACCESS_TOKEN_EXPIRY, MILLISECONDS_PER_SECOND, REFRESH_TOKEN_EXPIRY } from "../config/constants.js";
 
-import { eq, lt, sql } from "drizzle-orm"; // Service for users for all import bellow
+import { and, eq, gte, lt, sql } from "drizzle-orm"; // Service for users for all import bellow
 import { db } from "../config/db.js";
 import { sessionsTable, usersTable, shortLinksTable, verifyEmailTokensTable } from "../drizzle/schema.js";
 import argon2 from "argon2";
@@ -196,11 +196,62 @@ export const insertVerifyEmailToken = async ({ userId, token }) => {  // video 1
 
 
 export const createVerifyEmailLink = async ({email, token}) => {      // video 101
-  // const uriEncodedEmail = encodeURIComponent(email);
-  // return `${process.env.FRONTEND_URL}/verify-email-token?token=${token}&email=${uriEncodedEmail}`;
-
   const url = new URL(`${process.env.FRONTEND_URL}/verify-email-token`); // video 104. URL api
   url.searchParams.append('token', token);
   url.searchParams.append('email', email);
   return url.toString();
+}
+
+
+export const findVerificationEmailToken = async ({email, token}) => { // video 105
+  const tokenData = await db
+    .select({
+      userId    : verifyEmailTokensTable.userId,
+      token     : verifyEmailTokensTable.token,
+      expiresAt : verifyEmailTokensTable.expiresAt,
+    })
+    .from(verifyEmailTokensTable)
+    .where(
+      and(
+        eq(verifyEmailTokensTable.token, token), 
+        gte(verifyEmailTokensTable.expiresAt, sql`CURRENT_TIMESTAMP`)
+      )
+    )
+  if (!tokenData.length) {
+    return null;
+  }
+  const { userId } = tokenData[0];
+
+
+  const userData = await db
+    .select({
+      userId: usersTable.id,
+      email: usersTable.email,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, userId));
+  if (!userData.length) {
+    return null;
+  }
+  return {
+    userId   : userData[0].userId,
+    email    : userData[0].email,
+    token    : tokenData[0].token,
+    expiresAt: tokenData[0].expiresAt,
+  };
+};
+
+
+export const verifyUserEmailAndUpdate = async (email) => { // video 105
+  return db
+  .update(usersTable)
+  .set({ isEmailValid: true })
+  .where(eq(usersTable.email, email));
+}
+
+
+export const clearVerifyEmailTokens = async (userId) => { // video 105
+  return await db
+    .delete(verifyEmailTokensTable)
+    .where(eq(verifyEmailTokensTable.userId, userId))
 }

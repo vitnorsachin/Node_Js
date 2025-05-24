@@ -1,6 +1,6 @@
 import { sendEmail } from "../lib/nodemailer.js";
-import {clearUserSession,comparePassword,createUser,getUserByEmail,hashPassword,authenticateUser, findUserById, getAllShortLinks, generateRandomToken, insertVerifyEmailToken, createVerifyEmailLink} from "../services/auth.services.js";
-import { loginUserSchema,registerUserSchema,} from "../validators/auth.validators.js";
+import {clearUserSession,comparePassword,createUser,getUserByEmail,hashPassword,authenticateUser, findUserById, getAllShortLinks, generateRandomToken, insertVerifyEmailToken, createVerifyEmailLink, findVerificationEmailToken, verifyUserEmailAndUpdate, clearVerifyEmailTokens} from "../services/auth.services.js";
+import { loginUserSchema,registerUserSchema, verifyEmailSchema,} from "../validators/auth.validators.js";
 
 
 export const getRegisterPage = (req, res) => {// 1️⃣. Get "register.ejs" file & 'render'
@@ -133,10 +133,29 @@ export const resendVerificationLink = async (req, res) => { // video 101
     to : req.user.email,
     subject : "Verify your email",
     html: `<h1>Click the link below to verify your email</h1>
-           <p>You can use this token: <code>${randomToken}</code></p>
+           <p>You can use this token: <code style="font-size: 15px; font-weight: bold;">${randomToken}</code></p>
            <a href="${verifyEmailLink}">Verify Email</a>
           `,
   }).catch(console.error);
 
   res.redirect('/verify-email');
 };
+
+
+export const verifyEmailToken = async (req, res) => {       // video 105. verify "email" & "token"
+  const { data, error } = verifyEmailSchema.safeParse(req.query);
+
+  if (error) {
+    return res.send("Verifiaction link invalid or expired..!");
+  }
+
+  const token = await findVerificationEmailToken(data);
+  console.log("verifyEmailToken ~ token: ", token);
+  if(!token) res.send("Verifiaction link invalid or expired..");
+
+  await verifyUserEmailAndUpdate(token.email);
+
+  clearVerifyEmailTokens(token.userId).catch(console.error);
+
+  return res.redirect('/profile');
+}

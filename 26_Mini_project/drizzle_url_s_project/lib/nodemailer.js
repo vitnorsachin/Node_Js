@@ -1,8 +1,17 @@
 // video 102. send email using "nodemailer"
 import nodemailer from "nodemailer";
-import chalk from 'chalk';
+import chalk from "chalk";
 
-const testAccount = await nodemailer.createTestAccount();
+
+let testAccount;
+try {
+  testAccount = await nodemailer.createTestAccount();
+} catch (err) {
+  console.error(
+    chalk.redBright("\nFailed to create test account (likely No Internet):"),
+    err.message
+  );
+}
 
 const transporter = nodemailer.createTransport({
   host: "smtp.ethereal.email",
