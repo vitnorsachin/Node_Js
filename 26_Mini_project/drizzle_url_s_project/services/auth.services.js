@@ -1,10 +1,11 @@
 import { ACCESS_TOKEN_EXPIRY, MILLISECONDS_PER_SECOND, REFRESH_TOKEN_EXPIRY } from "../config/constants.js";
 
-import { eq } from "drizzle-orm"; // Service for users for all import bellow
+import { eq, lt, sql } from "drizzle-orm"; // Service for users for all import bellow
 import { db } from "../config/db.js";
-import { sessionsTable, usersTable, shortLinksTable } from "../drizzle/schema.js";
+import { sessionsTable, usersTable, shortLinksTable, verifyEmailTokensTable } from "../drizzle/schema.js";
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
+import crypto from 'crypto';
 
 
 export const getUserByEmail = async (email) => { // Get using "email" field
@@ -118,7 +119,8 @@ export const refreshTokens = async (refreshToken) => {  // video 90
     }
 
   } catch (error) {
-    console.log(error.message);
+    // console.log(error.message);
+    throw new Error("Token refresh failed: " + error.message);
   }
 }
 
@@ -158,6 +160,41 @@ export const authenticateUser = async ({req, res, user, name, email}) => {
 }
 
 
-export const getAllShortLinks = async (userId) => { // video 96
+export const getAllShortLinks = async (userId) => {                  // video 96
   return await db.select().from(shortLinksTable).where(eq(shortLinksTable.userId, userId));
+}
+
+ 
+export const generateRandomToken = (digit = 8) => {
+  const min = 10 ** (digit - 1);
+  const max = 10 ** (digit);
+  return crypto.randomInt(min, max).toString();
+}
+
+
+export const insertVerifyEmailToken = async ({ userId, token }) => {  // video 101
+  return db.transaction(async (tx) => {                               // video 103. DBMS transaction & How to use "transation"
+    try {
+      await tx
+        .delete(verifyEmailTokensTable)
+        .where(lt(verifyEmailTokensTable.expiresAt, sql`CURRENT_TIMESTAMP`));
+
+      // Delete any existing tokens for this specific user
+      await tx
+        .delete(verifyEmailTokensTable)
+        .where(eq(verifyEmailTokensTable.userId, userId));
+
+      await tx.insert(verifyEmailTokensTable).values({ userId, token });
+
+    } catch (error) {
+      console.error("\nFailed to insert verifiaction token: ", error);
+      throw new Error("Unale to create verifiaction token\n");      
+    }
+  });
+};
+
+
+export const createVerifyEmailLink = async ({email, token}) => {      // video 101
+  const uriEncodedEmail = encodeURIComponent(email);
+  return `${process.env.FRONTEND_URL}/verify-email-token?token=${token}&email=${uriEncodedEmail}`;
 }

@@ -14,7 +14,11 @@ router
   .get(authControllers.getLoginPage)
   .post(authControllers.postLogin);
 
-router.route("/profile").get(authControllers.getProfilePage); // vidoe 96
+router.route("/profile").get(authControllers.getProfilePage);                            // vidoe 96
+
+router.route("/verify-email").get(authControllers.getVerifyEmailPage);                   // video 100
+
+router.route("/resend-verification-link").post(authControllers.resendVerificationLink);  // video 101
 
 router.route("/logout").get(authControllers.logoutUser);
 
