@@ -23,5 +23,5 @@ export const sendEmail = async ({ to, subject, html }) => {
   });
 
   const testEmailURL = nodemailer.getTestMessageUrl(info);
-  console.log("\nVerify Email: ", chalk.greenBright(testEmailURL));
+  console.log("Verify Email: ", chalk.greenBright(testEmailURL));
 };

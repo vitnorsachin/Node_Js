@@ -124,14 +124,14 @@ export const resendVerificationLink = async (req, res) => { // video 101
   await insertVerifyEmailToken({ userId: req.user.id, token: randomToken });
 
   const verifyEmailLink = await createVerifyEmailLink({
-    eamil : req.user.eamil,
+    email : req.user.email,
     token : randomToken,
   });
 
 
   sendEmail({                             // video 102. send email using "nodemailer"
     to : req.user.email,
-    subject : "Verify your eamil",
+    subject : "Verify your email",
     html: `<h1>Click the link below to verify your email</h1>
            <p>You can use this token: <code>${randomToken}</code></p>
            <a href="${verifyEmailLink}">Verify Email</a>

@@ -173,6 +173,7 @@ export const generateRandomToken = (digit = 8) => {
 
 
 export const insertVerifyEmailToken = async ({ userId, token }) => {  // video 101
+  console.log("\nGenerating email...");
   return db.transaction(async (tx) => {                               // video 103. DBMS transaction & How to use "transation"
     try {
       await tx
@@ -195,6 +196,11 @@ export const insertVerifyEmailToken = async ({ userId, token }) => {  // video 1
 
 
 export const createVerifyEmailLink = async ({email, token}) => {      // video 101
-  const uriEncodedEmail = encodeURIComponent(email);
-  return `${process.env.FRONTEND_URL}/verify-email-token?token=${token}&email=${uriEncodedEmail}`;
+  // const uriEncodedEmail = encodeURIComponent(email);
+  // return `${process.env.FRONTEND_URL}/verify-email-token?token=${token}&email=${uriEncodedEmail}`;
+
+  const url = new URL(`${process.env.FRONTEND_URL}/verify-email-token`); // video 104. URL api
+  url.searchParams.append('token', token);
+  url.searchParams.append('email', email);
+  return url.toString();
 }
