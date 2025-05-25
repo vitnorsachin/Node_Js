@@ -111,6 +111,19 @@ header {
   z-index: 100;
 }
 
+.navbar a img{
+  position: relative;
+  top: 7px;
+  background-color: red;
+  padding: 4px;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+}
+.navbar a img:hover{
+  content: "Logout";
+}
+
 header .container,
 footer .container {
   display: flex;

@@ -1,11 +1,15 @@
 import { ACCESS_TOKEN_EXPIRY, MILLISECONDS_PER_SECOND, REFRESH_TOKEN_EXPIRY } from "../config/constants.js";
-
 import { and, eq, gte, lt, sql } from "drizzle-orm"; // Service for users for all import bellow
 import { db } from "../config/db.js";
 import { sessionsTable, usersTable, shortLinksTable, verifyEmailTokensTable } from "../drizzle/schema.js";
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import crypto from 'crypto';
+import { sendEmail } from "../lib/nodemailer.js";
+import path from 'path';
+import fs from "fs/promises";
+import mjml2html from "mjml";
+import ejs from 'ejs';
 
 
 export const getUserByEmail = async (email) => { // Get using "email" field
@@ -203,43 +207,62 @@ export const createVerifyEmailLink = async ({email, token}) => {      // video 1
 }
 
 
-export const findVerificationEmailToken = async ({email, token}) => { // video 105
-  const tokenData = await db
+// export const findVerificationEmailToken = async ({email, token}) => { // video 105
+//   const tokenData = await db
+//     .select({
+//       userId    : verifyEmailTokensTable.userId,
+//       token     : verifyEmailTokensTable.token,
+//       expiresAt : verifyEmailTokensTable.expiresAt,
+//     })
+//     .from(verifyEmailTokensTable)
+//     .where(
+//       and(
+//         eq(verifyEmailTokensTable.token, token), 
+//         gte(verifyEmailTokensTable.expiresAt, sql`CURRENT_TIMESTAMP`)
+//       )
+//     )
+//   if (!tokenData.length) {
+//     return null;
+//   }
+//   const { userId } = tokenData[0];
+
+
+//   const userData = await db
+//     .select({
+//       userId: usersTable.id,
+//       email: usersTable.email,
+//     })
+//     .from(usersTable)
+//     .where(eq(usersTable.id, userId));
+//   if (!userData.length) {
+//     return null;
+//   }
+//   return {
+//     userId   : userData[0].userId,
+//     email    : userData[0].email,
+//     token    : tokenData[0].token,
+//     expiresAt: tokenData[0].expiresAt,
+//   };
+// };
+
+
+export const findVerificationEmailToken = async ({token, email}) => {  // video 107
+  return await db
     .select({
-      userId    : verifyEmailTokensTable.userId,
-      token     : verifyEmailTokensTable.token,
+      userId : usersTable.id,
+      email: usersTable.email,
+      token: verifyEmailTokensTable.token,
       expiresAt : verifyEmailTokensTable.expiresAt,
     })
     .from(verifyEmailTokensTable)
     .where(
       and(
-        eq(verifyEmailTokensTable.token, token), 
+        eq(verifyEmailTokensTable.token, token),
+        eq(usersTable.email, email),
         gte(verifyEmailTokensTable.expiresAt, sql`CURRENT_TIMESTAMP`)
       )
-    )
-  if (!tokenData.length) {
-    return null;
-  }
-  const { userId } = tokenData[0];
-
-
-  const userData = await db
-    .select({
-      userId: usersTable.id,
-      email: usersTable.email,
-    })
-    .from(usersTable)
-    .where(eq(usersTable.id, userId));
-  if (!userData.length) {
-    return null;
-  }
-  return {
-    userId   : userData[0].userId,
-    email    : userData[0].email,
-    token    : tokenData[0].token,
-    expiresAt: tokenData[0].expiresAt,
-  };
-};
+    ).innerJoin(usersTable, eq(verifyEmailTokensTable.userId, usersTable.id));
+}
 
 
 export const verifyUserEmailAndUpdate = async (email) => { // video 105
@@ -254,4 +277,34 @@ export const clearVerifyEmailTokens = async (userId) => { // video 105
   return await db
     .delete(verifyEmailTokensTable)
     .where(eq(verifyEmailTokensTable.userId, userId))
+}
+
+
+export const sendNewVerifyEmailLink = async ({email, userId}) => {  // video 109
+  const randomToken = generateRandomToken();
+  
+  await insertVerifyEmailToken({ userId, token: randomToken });
+
+  const verifyEmailLink = await createVerifyEmailLink({
+    email : email,
+    token : randomToken,
+  });
+
+  const mjmlTemplate   = await fs.readFile(              // video 109
+    path.join(import.meta.dirname, "..","emails", "verify-email.mjml"),
+    "utf-8"
+  );
+
+  const filledTemplate = ejs.render(mjmlTemplate, {      // video 109
+    code : randomToken,
+    link :verifyEmailLink
+  });
+
+  const htmlOutput = mjml2html(filledTemplate).html;
+
+  sendEmail({                             // video 102. send email using "nodemailer"
+    to : email,
+    subject : "Verify your email",
+    html: htmlOutput,
+  }).catch(console.error);
 }

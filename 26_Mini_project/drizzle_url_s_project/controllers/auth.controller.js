@@ -1,6 +1,18 @@
-import { sendEmail } from "../lib/nodemailer.js";
-import {clearUserSession,comparePassword,createUser,getUserByEmail,hashPassword,authenticateUser, findUserById, getAllShortLinks, generateRandomToken, insertVerifyEmailToken, createVerifyEmailLink, findVerificationEmailToken, verifyUserEmailAndUpdate, clearVerifyEmailTokens} from "../services/auth.services.js";
 import { loginUserSchema,registerUserSchema, verifyEmailSchema,} from "../validators/auth.validators.js";
+import {
+  clearUserSession,
+  comparePassword,
+  createUser,
+  getUserByEmail,
+  hashPassword,
+  authenticateUser, 
+  findUserById, 
+  getAllShortLinks, 
+  findVerificationEmailToken, 
+  verifyUserEmailAndUpdate, 
+  clearVerifyEmailTokens, 
+  sendNewVerifyEmailLink
+} from "../services/auth.services.js";
 
 
 export const getRegisterPage = (req, res) => {// 1️⃣. Get "register.ejs" file & 'render'
@@ -119,24 +131,25 @@ export const resendVerificationLink = async (req, res) => { // video 101
   const user = await findUserById(req.user.id);
   if(!user || user.isEmailValid) return res.redirect("/");
 
-  const randomToken = generateRandomToken();
+  await sendNewVerifyEmailLink({ email: req.user.email, userId: req.user.id });
 
-  await insertVerifyEmailToken({ userId: req.user.id, token: randomToken });
+  // const randomToken = generateRandomToken();
 
-  const verifyEmailLink = await createVerifyEmailLink({
-    email : req.user.email,
-    token : randomToken,
-  });
+  // await insertVerifyEmailToken({ userId: req.user.id, token: randomToken });
 
+  // const verifyEmailLink = await createVerifyEmailLink({
+  //   email : req.user.email,
+  //   token : randomToken,
+  // });
 
-  sendEmail({                             // video 102. send email using "nodemailer"
-    to : req.user.email,
-    subject : "Verify your email",
-    html: `<h1>Click the link below to verify your email</h1>
-           <p>You can use this token: <code style="font-size: 15px; font-weight: bold;">${randomToken}</code></p>
-           <a href="${verifyEmailLink}">Verify Email</a>
-          `,
-  }).catch(console.error);
+  // sendEmail({                             // video 102. send email using "nodemailer"
+  //   to : req.user.email,
+  //   subject : "Verify your email",
+  //   html: `<h1>Click the link below to verify your email</h1>
+  //          <p>You can use this token: <code style="font-size: 15px; font-weight: bold;">${randomToken}</code></p>
+  //          <a href="${verifyEmailLink}">Verify Email</a>
+  //         `,
+  // }).catch(console.error);
 
   res.redirect('/verify-email');
 };
@@ -149,7 +162,9 @@ export const verifyEmailToken = async (req, res) => {       // video 105. verify
     return res.send("Verifiaction link invalid or expired..!");
   }
 
-  const token = await findVerificationEmailToken(data);
+  // const token = await findVerificationEmailToken(data); // for without joins
+  const [token] = await findVerificationEmailToken(data); // video 107. for joins
+
   console.log("verifyEmailToken ~ token: ", token);
   if(!token) res.send("Verifiaction link invalid or expired..");
 
@@ -157,5 +172,11 @@ export const verifyEmailToken = async (req, res) => {       // video 105. verify
 
   clearVerifyEmailTokens(token.userId).catch(console.error);
 
-  return res.redirect('/profile');
+  // return res.redirect('/profile');
+  return res.send(
+    `<h2 style="text-align: center; color: green; margin-top:30px">
+      Email verified! You can close this tab. <br> 
+      <a style="text-size: 15px;" href="http://localhost:3001/profile">Go Profile</a>
+    </h2>`
+  ); 
 }

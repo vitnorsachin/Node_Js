@@ -20,7 +20,7 @@ router.route("/verify-email").get(authControllers.getVerifyEmailPage);          
 
 router.route("/resend-verification-link").post(authControllers.resendVerificationLink);  // video 101
 
-router.route("/verify-email-token").get(authControllers.verifyEmailToken);
+router.route("/verify-email-token").get(authControllers.verifyEmailToken);               // video 105
 
 router.route("/logout").get(authControllers.logoutUser);
 
