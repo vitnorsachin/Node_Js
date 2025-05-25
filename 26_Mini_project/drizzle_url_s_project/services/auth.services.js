@@ -5,11 +5,12 @@ import { sessionsTable, usersTable, shortLinksTable, verifyEmailTokensTable } fr
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import crypto from 'crypto';
-import { sendEmail } from "../lib/nodemailer.js";
 import path from 'path';
 import fs from "fs/promises";
 import mjml2html from "mjml";
 import ejs from 'ejs';
+// import { sendEmail } from "../lib/nodemailer.js";  // for testing locally "email"
+import { sendEmail } from "../lib/resend-email.js";   // send email offically
 
 
 export const getUserByEmail = async (email) => { // Get using "email" field
@@ -247,7 +248,7 @@ export const createVerifyEmailLink = async ({email, token}) => {      // video 1
 
 
 export const findVerificationEmailToken = async ({token, email}) => {  // video 107
-  return await db
+  return db        // 🔴 remove await here
     .select({
       userId : usersTable.id,
       email: usersTable.email,
