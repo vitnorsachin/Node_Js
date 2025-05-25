@@ -43,7 +43,9 @@
             </div>
           </div>
           <div class="profile-info">
-            <h2 class="profile-name"><%= user.name.charAt(0).toUpperCase()+user.name.slice(1) %></h2>
+            <h2 class="profile-name">
+              <%= user.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+            </h2>
             <p class="profile-email">
               <i class="zmdi zmdi-email"></i> <%= user.email %>
             </p>

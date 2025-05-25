@@ -45,9 +45,12 @@ export const postRegister = async (req, res) => {
 
     // res.status(201).redirect("/login");
 
-    await authenticateUser({ req, res, user, name, email }); // video 95. authenticate user
+    await authenticateUser({ req, res, user, name, email });  // video 95. authenticate user
 
-    res.redirect("/");
+    await sendNewVerifyEmailLink({ email, userId: user.id }); // video 108. send verifyemail during register
+
+    // res.redirect("/");
+    res.redirect('/verify-email');                            // video 108. after register goto verify email
   } catch (error) {
     console.error(error);
     res.status(201).send("❌ Internal server error from registerLogin..");
@@ -131,7 +134,7 @@ export const resendVerificationLink = async (req, res) => { // video 101
   const user = await findUserById(req.user.id);
   if(!user || user.isEmailValid) return res.redirect("/");
 
-  await sendNewVerifyEmailLink({ email: req.user.email, userId: req.user.id });
+  await sendNewVerifyEmailLink({ email: req.user.email, userId: req.user.id }); // video 108. send mail after registration
 
   // const randomToken = generateRandomToken();
 
@@ -172,11 +175,5 @@ export const verifyEmailToken = async (req, res) => {       // video 105. verify
 
   clearVerifyEmailTokens(token.userId).catch(console.error);
 
-  // return res.redirect('/profile');
-  return res.send(
-    `<h2 style="text-align: center; color: green; margin-top:30px">
-      Email verified! You can close this tab. <br> 
-      <a style="text-size: 15px;" href="http://localhost:3001/profile">Go Profile</a>
-    </h2>`
-  ); 
+  return res.redirect('/profile');
 }

@@ -29,7 +29,9 @@
           <a href="/register">Register</a>
           <% } else { %>
           <a href="/profile">Profile</a>
-          <a id="user_profile">Hi, <span style="color: #0000d4"><%= user.name.charAt(0).toUpperCase()+user.name.slice(1) %></span>.!</a>
+          <a id="user_profile">Hi, <span style="color: #0000d4">
+            <%= user.name.split(" ")[0].charAt(0).toUpperCase() + user.name.split(" ")[0].slice(1) %></span>.!
+          </a>
           <a href="/logout"><img src="images/power-off.png" alt="Logout" /></a>
           <% } %>
         </nav>

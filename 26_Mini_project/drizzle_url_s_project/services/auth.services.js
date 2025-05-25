@@ -280,7 +280,7 @@ export const clearVerifyEmailTokens = async (userId) => { // video 105
 }
 
 
-export const sendNewVerifyEmailLink = async ({email, userId}) => {  // video 109
+export const sendNewVerifyEmailLink = async ({email, userId}) => {  // video 108. 
   const randomToken = generateRandomToken();
   
   await insertVerifyEmailToken({ userId, token: randomToken });
@@ -302,9 +302,9 @@ export const sendNewVerifyEmailLink = async ({email, userId}) => {  // video 109
 
   const htmlOutput = mjml2html(filledTemplate).html;
 
-  sendEmail({                             // video 102. send email using "nodemailer"
+  sendEmail({                                           // video 102. send email using "nodemailer"
     to : email,
     subject : "Verify your email",
-    html: htmlOutput,
-  }).catch(console.error);
+    html: htmlOutput,                                    // video 109
+  }).catch(console.error);    
 }
