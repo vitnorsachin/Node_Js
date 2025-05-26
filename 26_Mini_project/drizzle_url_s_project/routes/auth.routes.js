@@ -23,10 +23,11 @@ router.route("/resend-verification-link").post(authControllers.resendVerificatio
 router.route("/verify-email-token").get(authControllers.verifyEmailToken);               // video 105
 
 
-router.route("/edit-profile")                                                  // video 112. step 1. for edit profile name
+router.route("/edit-profile")                                      // video 112. step 1. for edit profile name
   .get(authControllers.getEditProfilePage)
   .post(authControllers.postEditProfile)
-  
+
+router.route("/change-password").get(authControllers.getChangePasswordPage);   // video 114. step 1 change password
 
 router.route("/logout").get(authControllers.logoutUser);
 

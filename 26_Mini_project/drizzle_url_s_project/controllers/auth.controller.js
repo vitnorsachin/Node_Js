@@ -201,3 +201,9 @@ export const postEditProfile = async (req, res) => {     // video 112. step 2
   await updateUserByName({ userId: req.user.id, name: data.name });
   res.redirect("/profile");
 }
+
+
+export const getChangePasswordPage = async (req, res) => {
+  if(!req.user) return res.redirect("/");
+  res.render("auth/change-password", { errors: req.flash("errors")});
+}
