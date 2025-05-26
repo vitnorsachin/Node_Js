@@ -309,3 +309,11 @@ export const sendNewVerifyEmailLink = async ({email, userId}) => {  // video 108
     html: htmlOutput,                                    // video 109
   }).catch(console.error);    
 }
+
+
+export const updateUserByName = async ({ userId, name }) => { // video 112. step 3
+  return await db
+  .update(usersTable)
+  .set({ name: name })
+  .where(eq(usersTable.id, userId));
+}

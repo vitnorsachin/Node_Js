@@ -1,4 +1,4 @@
-import { loginUserSchema,registerUserSchema, verifyEmailSchema,} from "../validators/auth.validators.js";
+import { loginUserSchema,registerUserSchema, verifyEmailSchema, verifyUserSchema,} from "../validators/auth.validators.js";
 import {
   clearUserSession,
   comparePassword,
@@ -11,7 +11,8 @@ import {
   findVerificationEmailToken, 
   verifyUserEmailAndUpdate, 
   clearVerifyEmailTokens, 
-  sendNewVerifyEmailLink
+  sendNewVerifyEmailLink,
+  updateUserByName
 } from "../services/auth.services.js";
 
 
@@ -20,8 +21,7 @@ export const getRegisterPage = (req, res) => {// 1️⃣. Get "register.ejs" fil
   res.render("../views/auth/register", { errors: req.flash("errors") }); //🟢 path of register file ([step 3️⃣. give path of ejs file])
 };
 
-export const postRegister = async (req, res) => {
-  // 1️⃣. Register
+export const postRegister = async (req, res) => { // 1️⃣. Register
   try {
     if (req.user) res.redirect("/");
 
@@ -35,11 +35,11 @@ export const postRegister = async (req, res) => {
 
     const userExists = await getUserByEmail(email);
     if (userExists) {
-      req.flash("errors", "User already exists..!"); // video : 83 step 2
+      req.flash("errors", "User already exists..!");          // video : 83 step 2
       return res.redirect("/register");
     }
 
-    const hashedPassword = await hashPassword(password); // video : 78
+    const hashedPassword = await hashPassword(password);      // video : 78
     const [user] = await createUser({ name, email, password: hashedPassword });
     console.log("User Register: ", user);
 
@@ -176,4 +176,28 @@ export const verifyEmailToken = async (req, res) => {       // video 105. verify
   clearVerifyEmailTokens(token.userId).catch(console.error);
 
   return res.redirect('/profile');
+}
+
+
+export const getEditProfilePage = async (req, res) => {     // video 112. step 2 Edit prifile name
+  if(!req.user) return res.redirect("/");
+
+  const user = await findUserById(req.user.id);
+  if(!user) return res.status(404).send("User not found");
+
+  res.render("auth/edit-profile", { name: user.name, errors: req.flash("errors"), avatarUrl: 'hello' });
+}
+
+export const postEditProfile = async (req, res) => {     // video 112. step 2
+  if(!req.user) return res.redirect("/");
+  
+  const { data, error } = verifyUserSchema.safeParse(req.body);
+  if(error){
+    const errorMessages = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect("/edit-profile");
+  }
+
+  await updateUserByName({ userId: req.user.id, name: data.name });
+  res.redirect("/profile");
 }
