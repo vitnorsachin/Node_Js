@@ -1,4 +1,4 @@
-import { loginUserSchema,registerUserSchema, verifyEmailSchema, verifyUserSchema,} from "../validators/auth.validators.js";
+import { loginUserSchema,registerUserSchema, verifyEmailSchema, verifyPasswordSchema, verifyUserSchema,} from "../validators/auth.validators.js";
 import {
   clearUserSession,
   comparePassword,
@@ -206,4 +206,16 @@ export const postEditProfile = async (req, res) => {     // video 112. step 2
 export const getChangePasswordPage = async (req, res) => {
   if(!req.user) return res.redirect("/");
   res.render("auth/change-password", { errors: req.flash("errors")});
+}
+
+export const postChangePassword = async (req, res) => {
+  const { data, error } = verifyPasswordSchema.safeParse(req.body);
+  if(error){
+    const errorMessages = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect("/change-password");
+  }
+
+  console.log("Data : ", data);
+  return res.redirect("/change-password");
 }

@@ -39,43 +39,33 @@ export const verifyUserSchema = z.object({
 });
 
 
+export const verifyPasswordSchema = z       // video 115. zod validation for password change
+  .object({
+    currentPassword: z
+      .string()
+      .min(1, { message: "Current Password is required!" }),
+    newPassword: z
+      .string()
+      .min(6, { message: "New Password must be at least 6 characters long." })
+      .max(100, {
+        message: "New Password must be no more than 100 characters.",
+      }),
+    confirmPassword: z
+      .string()
+      .min(6, {
+        message: "Confirm Password must be at least 6 characters long.",
+      })
+      .max(100, {
+        message: "Confirm Password must be no more than 100 characters.",
+      }),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"], // Error will be associated with confirmPassword field
+  });
 
 
-
-
-
-
-
-
-
-
-
-
-// export const verifyPasswordSchema = z
-//   .object({
-//     currentPassword: z
-//       .string()
-//       .min(1, { message: "Current Password is required!" }),
-//     newPassword: z
-//       .string()
-//       .min(6, { message: "New Password must be at least 6 characters long." })
-//       .max(100, {
-//         message: "New Password must be no more than 100 characters.",
-//       }),
-//     confirmPassword: z
-//       .string()
-//       .min(6, {
-//         message: "Confirm Password must be at least 6 characters long.",
-//       })
-//       .max(100, {
-//         message: "Confirm Password must be no more than 100 characters.",
-//       }),
-//   })
-//   .refine((data) => data.newPassword === data.confirmPassword, {
-//     message: "Passwords don't match",
-//     path: ["confirmPassword"], // Error will be associated with confirmPassword field
-//   });
-
+  
 // export const forgotPasswordSchema = z.object({
 //   email: emailSchema,
 // });
