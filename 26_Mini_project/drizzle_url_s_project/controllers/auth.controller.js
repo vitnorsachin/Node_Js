@@ -12,7 +12,8 @@ import {
   verifyUserEmailAndUpdate, 
   clearVerifyEmailTokens, 
   sendNewVerifyEmailLink,
-  updateUserByName
+  updateUserByName,
+  updateUserPassword
 } from "../services/auth.services.js";
 
 
@@ -203,12 +204,12 @@ export const postEditProfile = async (req, res) => {     // video 112. step 2
 }
 
 
-export const getChangePasswordPage = async (req, res) => {
+export const getChangePasswordPage = async (req, res) => {  // video 114
   if(!req.user) return res.redirect("/");
-  res.render("auth/change-password", { errors: req.flash("errors")});
+  res.render("auth/change-password", { errors: req.flash("errors"), success: req.flash("success")});
 }
 
-export const postChangePassword = async (req, res) => {
+export const postChangePassword = async (req, res) => {  // video 115
   const { data, error } = verifyPasswordSchema.safeParse(req.body);
   if(error){
     const errorMessages = error.errors.map((err) => err.message);
@@ -216,6 +217,19 @@ export const postChangePassword = async (req, res) => {
     return res.redirect("/change-password");
   }
 
-  console.log("Data : ", data);
+  const { currentPassword, newPassword } = data;
+
+  const user = await findUserById(req.user.id);                       // video 116
+  if(!user) return res.status(404).send("User not found");
+
+  const isPasswordValid = await comparePassword(currentPassword, user.password);
+  if(!isPasswordValid){
+    req.flash("error", "Current Password that you entered is invalid");
+    return res.redirect("/change-password");
+  }
+
+  await updateUserPassword({ userId: user.id, newPassword });         // video 116
+  req.flash("success", "Password is changed.");
+
   return res.redirect("/change-password");
-}
+} 

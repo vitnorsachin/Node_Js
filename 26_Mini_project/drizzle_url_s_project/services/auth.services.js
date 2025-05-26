@@ -247,7 +247,7 @@ export const createVerifyEmailLink = async ({email, token}) => {      // video 1
 // };
 
 
-export const findVerificationEmailToken = async ({token, email}) => {  // video 107
+export const findVerificationEmailToken = async ({token, email}) => {// video 107
   return db        // 🔴 remove await here
     .select({
       userId : usersTable.id,
@@ -266,7 +266,7 @@ export const findVerificationEmailToken = async ({token, email}) => {  // video 
 }
 
 
-export const verifyUserEmailAndUpdate = async (email) => { // video 105
+export const verifyUserEmailAndUpdate = async (email) => {           // video 105
   return db
   .update(usersTable)
   .set({ isEmailValid: true })
@@ -274,14 +274,14 @@ export const verifyUserEmailAndUpdate = async (email) => { // video 105
 }
 
 
-export const clearVerifyEmailTokens = async (userId) => { // video 105
+export const clearVerifyEmailTokens = async (userId) => {             // video 105
   return await db
     .delete(verifyEmailTokensTable)
     .where(eq(verifyEmailTokensTable.userId, userId))
 }
 
 
-export const sendNewVerifyEmailLink = async ({email, userId}) => {  // video 108. 
+export const sendNewVerifyEmailLink = async ({email, userId}) => {    // video 108. 
   const randomToken = generateRandomToken();
   
   await insertVerifyEmailToken({ userId, token: randomToken });
@@ -311,9 +311,18 @@ export const sendNewVerifyEmailLink = async ({email, userId}) => {  // video 108
 }
 
 
-export const updateUserByName = async ({ userId, name }) => { // video 112. step 3
+export const updateUserByName = async ({ userId, name }) => {          // video 112. step 3
   return await db
   .update(usersTable)
   .set({ name: name })
   .where(eq(usersTable.id, userId));
+}
+
+export const updateUserPassword = async ({ userId, newPassword }) => { // video 116
+  const newHashPassword = await hashPassword(newPassword);
+
+  return await db
+    .update(usersTable)
+    .set({ password: newHashPassword })
+    .where(eq(usersTable.id, userId));
 }

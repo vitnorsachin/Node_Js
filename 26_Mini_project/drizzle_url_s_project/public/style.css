@@ -114,7 +114,7 @@ header {
 .navbar a img{
   position: relative;
   top: 7px;
-  background-color: red;
+  background-color: #ff427e;
   padding: 4px;
   border-radius: 50%;
   width: 25px;
@@ -140,7 +140,7 @@ header nav a {
 }
 #user_profile {
   text-align: center;
-  color: red;
+  color: green;
   font-weight: bold;
   padding-inline: 10px;
   padding-block: 4px;
@@ -1221,6 +1221,9 @@ footer .social-links a:hover {
 }
 
 .error-container {
+  margin-bottom: var(--spacing-4);
+}
+.success-container {
   margin-bottom: var(--spacing-4);
 }
 
