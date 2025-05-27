@@ -25,11 +25,18 @@ router.route("/verify-email-token").get(authControllers.verifyEmailToken);      
 
 router.route("/edit-profile")                                                  // video 112. step 1. for edit profile name
   .get(authControllers.getEditProfilePage)
-  .post(authControllers.postEditProfile)
+  .post(authControllers.postEditProfile);
+
 
 router.route("/change-password")
   .get(authControllers.getChangePasswordPage)                              // video 114. step 1 change password
-  .post(authControllers.postChangePassword);                               // video 115. step 1 
+  .post(authControllers.postChangePassword);                               // video 115. step 1
+
+
+router.route("/reset-password")
+  .get(authControllers.getResetPasswordPage)
+  // .post(authControllers.);                                  // video 117. step 1. forgot password
+
 
 router.route("/logout").get(authControllers.logoutUser);
 

@@ -137,24 +137,6 @@ export const resendVerificationLink = async (req, res) => { // video 101
 
   await sendNewVerifyEmailLink({ email: req.user.email, userId: req.user.id }); // video 108. send mail after registration
 
-  // const randomToken = generateRandomToken();
-
-  // await insertVerifyEmailToken({ userId: req.user.id, token: randomToken });
-
-  // const verifyEmailLink = await createVerifyEmailLink({
-  //   email : req.user.email,
-  //   token : randomToken,
-  // });
-
-  // sendEmail({                             // video 102. send email using "nodemailer"
-  //   to : req.user.email,
-  //   subject : "Verify your email",
-  //   html: `<h1>Click the link below to verify your email</h1>
-  //          <p>You can use this token: <code style="font-size: 15px; font-weight: bold;">${randomToken}</code></p>
-  //          <a href="${verifyEmailLink}">Verify Email</a>
-  //         `,
-  // }).catch(console.error);
-
   res.redirect('/verify-email');
 };
 
@@ -166,8 +148,8 @@ export const verifyEmailToken = async (req, res) => {       // video 105. verify
     return res.send("Verifiaction link invalid or expired..!");
   }
 
-  // const token = await findVerificationEmailToken(data); // for without joins
-  const [token] = await findVerificationEmailToken(data); // video 107. for joins
+  // const token = await findVerificationEmailToken(data);    // for without joins
+  const [token] = await findVerificationEmailToken(data);     // video 107. for joins
 
   console.log("verifyEmailToken ~ token: ", token);
   if(!token) res.send("Verifiaction link invalid or expired..");
@@ -180,7 +162,7 @@ export const verifyEmailToken = async (req, res) => {       // video 105. verify
 }
 
 
-export const getEditProfilePage = async (req, res) => {     // video 112. step 2 Edit prifile name
+export const getEditProfilePage = async (req, res) => {      // video 112. step 2 Edit prifile name
   if(!req.user) return res.redirect("/");
 
   const user = await findUserById(req.user.id);
@@ -189,7 +171,7 @@ export const getEditProfilePage = async (req, res) => {     // video 112. step 2
   res.render("auth/edit-profile", { name: user.name, errors: req.flash("errors"), avatarUrl: 'hello' });
 }
 
-export const postEditProfile = async (req, res) => {     // video 112. step 2
+export const postEditProfile = async (req, res) => {         // video 112. step 2
   if(!req.user) return res.redirect("/");
   
   const { data, error } = verifyUserSchema.safeParse(req.body);
@@ -204,12 +186,12 @@ export const postEditProfile = async (req, res) => {     // video 112. step 2
 }
 
 
-export const getChangePasswordPage = async (req, res) => {  // video 114
+export const getChangePasswordPage = async (req, res) => {   // video 114
   if(!req.user) return res.redirect("/");
   res.render("auth/change-password", { errors: req.flash("errors"), success: req.flash("success")});
 }
 
-export const postChangePassword = async (req, res) => {  // video 115
+export const postChangePassword = async (req, res) => {      // video 115
   const { data, error } = verifyPasswordSchema.safeParse(req.body);
   if(error){
     const errorMessages = error.errors.map((err) => err.message);
@@ -232,4 +214,13 @@ export const postChangePassword = async (req, res) => {  // video 115
   req.flash("success", "Password is changed.");
 
   return res.redirect("/change-password");
-} 
+}
+
+
+export const getResetPasswordPage = async (req, res) => {    // video 117. step 2.
+  res.render("auth/forgot-password", { 
+    formSubmitted: false,
+    formSubmitted: req.flash("formSubmitted")[0],
+    errors: req.flash("errors"),
+  });
+}
