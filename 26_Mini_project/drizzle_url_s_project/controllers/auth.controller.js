@@ -1,4 +1,12 @@
-import { loginUserSchema,registerUserSchema, verifyEmailSchema, verifyPasswordSchema, verifyUserSchema,} from "../validators/auth.validators.js";
+import { 
+  forgotPasswordSchema,
+  loginUserSchema,
+  registerUserSchema, 
+  verifyEmailSchema, 
+  verifyPasswordSchema, 
+  verifyUserSchema,
+} from "../validators/auth.validators.js";
+
 import {
   clearUserSession,
   comparePassword,
@@ -13,7 +21,9 @@ import {
   clearVerifyEmailTokens, 
   sendNewVerifyEmailLink,
   updateUserByName,
-  updateUserPassword
+  updateUserPassword,
+  findUserByEmail,
+  createResetPasswordLink
 } from "../services/auth.services.js";
 
 
@@ -217,10 +227,28 @@ export const postChangePassword = async (req, res) => {      // video 115
 }
 
 
+
 export const getResetPasswordPage = async (req, res) => {    // video 117. step 2.
   res.render("auth/forgot-password", { 
     formSubmitted: false,
     formSubmitted: req.flash("formSubmitted")[0],
     errors: req.flash("errors"),
   });
+}
+
+export const postForgotPassword = async (req, res) => {        // video 118 step 2
+  const { data, error } = forgotPasswordSchema.safeParse(req.body);
+
+  if(error){
+    const [errorMessages] = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect("/reset-password");
+  }
+  
+  const user = await findUserByEmail(data.email);
+  if (user) {
+    const resetPasswordLink = await createResetPasswordLink({ userId: user.id }); 
+  }
+  
+  res.send("PostForgotPassword page");
 }

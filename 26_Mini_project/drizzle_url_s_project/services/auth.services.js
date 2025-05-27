@@ -1,7 +1,7 @@
 import { ACCESS_TOKEN_EXPIRY, MILLISECONDS_PER_SECOND, REFRESH_TOKEN_EXPIRY } from "../config/constants.js";
 import { and, eq, gte, lt, sql } from "drizzle-orm"; // Service for users for all import bellow
 import { db } from "../config/db.js";
-import { sessionsTable, usersTable, shortLinksTable, verifyEmailTokensTable } from "../drizzle/schema.js";
+import { sessionsTable, usersTable, shortLinksTable, verifyEmailTokensTable, passwordResetTokensTable } from "../drizzle/schema.js";
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import crypto from 'crypto';
@@ -325,4 +325,27 @@ export const updateUserPassword = async ({ userId, newPassword }) => { // video 
     .update(usersTable)
     .set({ password: newHashPassword })
     .where(eq(usersTable.id, userId));
+}
+
+
+export const findUserByEmail = async ( email ) => {                    // video 118
+  const [user] =  await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email));
+  return user;
+}
+
+export const createResetPasswordLink = async ({ userId }) => {                   // video 118 step 3
+  const randomToken = crypto.randomBytes(32).toString('hex');
+  const tokenHash = crypto.createHash('sha256').update(randomToken).digest("hex");
+
+  await db
+    .delete(passwordResetTokensTable)
+    .where(eq(passwordResetTokensTable.userId, userId));
+
+  await db
+    .insert(passwordResetTokensTable).values({ userId, tokenHash });
+
+  return `${process.env.FRONTEND_URL}/reset-password/${randomToken}`;
 }

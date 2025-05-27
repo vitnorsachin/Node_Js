@@ -59,16 +59,17 @@ export const verifyPasswordSchema = z       // video 115. zod validation for pas
         message: "Confirm Password must be no more than 100 characters.",
       }),
   })
-  .refine((data) => data.newPassword === data.confirmPassword, {
+  .refine((data) => data.newPassword === data.confirmPassword, {     // vidoe 117
     message: "Passwords don't match",
     path: ["confirmPassword"], // Error will be associated with confirmPassword field
   });
 
 
   
-// export const forgotPasswordSchema = z.object({
-//   email: emailSchema,
-// });
+export const forgotPasswordSchema = z.object({                       // video 118
+  email: emailSchema,
+});
+
 
 // const passwordSchema = z
 //   .object({
