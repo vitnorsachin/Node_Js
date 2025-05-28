@@ -4,6 +4,7 @@ import {
   registerUserSchema, 
   verifyEmailSchema, 
   verifyPasswordSchema, 
+  verifyResetPasswordSchema, 
   verifyUserSchema,
 } from "../validators/auth.validators.js";
 
@@ -24,19 +25,20 @@ import {
   updateUserPassword,
   findUserByEmail,
   createResetPasswordLink,
-  getResetPasswordToken
+  getResetPasswordToken,
+  clearResetPasswordToken
 } from "../services/auth.services.js";
 
 import { getHtmlFromMjmlTemplate } from "../lib/get-html-from-mjml-templae.js";
 import { sendEmail } from "../lib/resend-email.js";
 
 
-export const getRegisterPage = (req, res) => {// 1️⃣. Get "register.ejs" file & 'render'
+export const getRegisterPage = (req, res) => {               // 1️⃣. Get "register.ejs" file & 'render'
   // video : 83. step 3. Pass errors
   res.render("../views/auth/register", { errors: req.flash("errors") }); //🟢 path of register file ([step 3️⃣. give path of ejs file])
 };
 
-export const postRegister = async (req, res) => { // 1️⃣. Register
+export const postRegister = async (req, res) => {            // 1️⃣. Register
   try {
     if (req.user) res.redirect("/");
 
@@ -73,11 +75,11 @@ export const postRegister = async (req, res) => { // 1️⃣. Register
 };
 
 
-export const getLoginPage = (req, res) => {// 2️⃣. Get 'login.ejs' file and 'render'
+export const getLoginPage = (req, res) => {                  // 2️⃣. Get 'login.ejs' file and 'render'
   res.render("auth/login", { errors: req.flash("errors") });
 };
-
-export const postLogin = async (req, res) => {  // 2️⃣. Login
+ 
+export const postLogin = async (req, res) => {               // 2️⃣. Login
   const { data, error } = loginUserSchema.safeParse(req.body); // video 86. step 2.
   if (error) {
     const errors = error.errors[0].message;
@@ -105,7 +107,7 @@ export const postLogin = async (req, res) => {  // 2️⃣. Login
 };
 
 
-export const logoutUser = async (req, res) => {// video 82. For User Logout..
+export const logoutUser = async (req, res) => {              // video 82. For User Logout..
   await clearUserSession(req.user.sessionId);
   res.clearCookie("access_token"); // video 93.
   res.clearCookie("refresh_token");
@@ -113,7 +115,7 @@ export const logoutUser = async (req, res) => {// video 82. For User Logout..
 };
 
 
-export const getProfilePage = async (req, res) => {// video 81. For get Profile
+export const getProfilePage = async (req, res) => {          // video 81. For get Profile
   if (!req.user) return res.send(`<h2 style="color: red; text-align: center;">Not logged In.</h2>`);
 
   const user = await findUserById(req.user.id);// video. 96
@@ -134,7 +136,7 @@ export const getProfilePage = async (req, res) => {// video 81. For get Profile
 };
 
 
-export const getVerifyEmailPage = async (req, res) => {   // video 100
+export const getVerifyEmailPage = async (req, res) => {      // video 100
   if(!req.user) return res.redirect("/");
 
   const user = await findUserById(req.user.id);
@@ -144,7 +146,7 @@ export const getVerifyEmailPage = async (req, res) => {   // video 100
 }
 
 
-export const resendVerificationLink = async (req, res) => { // video 101
+export const resendVerificationLink = async (req, res) => {  // video 101
   if(!req.user) return res.redirect("/");
   const user = await findUserById(req.user.id);
   if(!user || user.isEmailValid) return res.redirect("/");
@@ -155,7 +157,7 @@ export const resendVerificationLink = async (req, res) => { // video 101
 };
 
 
-export const verifyEmailToken = async (req, res) => {       // video 105. verify "email" & "token"
+export const verifyEmailToken = async (req, res) => {        // video 105. verify "email" & "token"
   const { data, error } = verifyEmailSchema.safeParse(req.query);
 
   if (error) {
@@ -175,7 +177,7 @@ export const verifyEmailToken = async (req, res) => {       // video 105. verify
   return res.redirect('/profile');
 }
 
-
+ 
 export const getEditProfilePage = async (req, res) => {      // video 112. step 2 Edit prifile name
   if(!req.user) return res.redirect("/");
 
@@ -215,7 +217,7 @@ export const postChangePassword = async (req, res) => {      // video 115
 
   const { currentPassword, newPassword } = data;
 
-  const user = await findUserById(req.user.id);                       // video 116
+  const user = await findUserById(req.user.id);              // video 116
   if(!user) return res.status(404).send("User not found");
 
   const isPasswordValid = await comparePassword(currentPassword, user.password);
@@ -224,15 +226,14 @@ export const postChangePassword = async (req, res) => {      // video 115
     return res.redirect("/change-password");
   }
 
-  await updateUserPassword({ userId: user.id, newPassword });         // video 116
+  await updateUserPassword({ userId: user.id, newPassword });  // video 116
   req.flash("success", "Password is changed.");
 
   return res.redirect("/change-password");
-}
+} 
 
 
-
-export const getResetPasswordPage = async (req, res) => {    // video 117. step 2.
+export const getResetPasswordPage = async (req, res) => {     // video 117. step 2.
   res.render("auth/forgot-password", { 
     formSubmitted: false,
     formSubmitted: req.flash("formSubmitted")[0],
@@ -240,7 +241,7 @@ export const getResetPasswordPage = async (req, res) => {    // video 117. step 
   });
 }
 
-export const postForgotPassword = async (req, res) => {        // video 118 step 2
+export const postResetPassword = async (req, res) => {        // video 118 step 2
   const { data, error } = forgotPasswordSchema.safeParse(req.body);
 
   if(error){
@@ -270,7 +271,7 @@ export const postForgotPassword = async (req, res) => {        // video 118 step
 }
 
 
-export const getResetPasswordTokenPage = async (req, res) => {                   // video 121
+export const getResetPasswordTokenPage = async (req, res) => {// video 121
   const { token } = req.params;
   const passwordResetData = await getResetPasswordToken(token);
   if(!passwordResetData) return res.render("auth/wrong-reset-password-token");
@@ -280,4 +281,29 @@ export const getResetPasswordTokenPage = async (req, res) => {                  
     errors: req.flash("errors"),
     token,
   })
+}
+
+export const postResetPasswordToken = async (req, res) => {   // video 122
+  const {token} = req.params;
+  const passwordResetData = await getResetPasswordToken(token);
+  if(!passwordResetData) {
+    req.flash("errors", "Password Token is not matching");
+    return res.render("auth/wrong-reset-password-token");
+  };
+
+  const { data, error } = verifyResetPasswordSchema.safeParse(req.body);
+  if(error){
+    const errorMessages = error.errors.map((err) => err.message );
+    req.flash("errors", errorMessages[0]);
+    res.redirect(`/reset-password/${token}`);
+  }
+
+  const { newPassword } = data;
+  const user = await findUserById(passwordResetData.userId);
+
+  await clearResetPasswordToken(user.id);
+
+  await updateUserPassword({ userId:user.id, newPassword })
+
+  return res.redirect("/login");
 }

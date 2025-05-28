@@ -40,7 +40,7 @@ export const verifyAuthentication = async (req, res, next) => {   // video 92
 
       return next();
     } catch (error) {
-      console.log(error);
+      console.log("Error from verifyAuthentication", error);
     }
   }
 
