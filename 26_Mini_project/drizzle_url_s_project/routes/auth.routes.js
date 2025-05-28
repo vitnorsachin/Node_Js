@@ -38,6 +38,9 @@ router.route("/reset-password")
   .post(authControllers.postForgotPassword);                            // video 118. reset password link & and store db
 
 
+router.route("/reset-password/:token")
+  .get(authControllers.getResetPasswordTokenPage);
+
 router.route("/logout").get(authControllers.logoutUser);
 
 export const authRoutes = router;

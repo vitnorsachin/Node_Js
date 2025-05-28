@@ -23,7 +23,8 @@ import {
   updateUserByName,
   updateUserPassword,
   findUserByEmail,
-  createResetPasswordLink
+  createResetPasswordLink,
+  getResetPasswordToken
 } from "../services/auth.services.js";
 
 import { getHtmlFromMjmlTemplate } from "../lib/get-html-from-mjml-templae.js";
@@ -249,10 +250,10 @@ export const postForgotPassword = async (req, res) => {        // video 118 step
   }
   
   const user = await findUserByEmail(data.email);
-  if (user) {
-    const resetPasswordLink = await createResetPasswordLink({ userId: user.id }); 
+  if (user) {  
+    const resetPasswordLink = await createResetPasswordLink({ userId: user.id });  // video 119
 
-    const html = await getHtmlFromMjmlTemplate("reset-password-email", {          //
+    const html = await getHtmlFromMjmlTemplate("reset-password-email", {           // video 120
       name: user.name,
       link: resetPasswordLink,
     });
@@ -266,4 +267,17 @@ export const postForgotPassword = async (req, res) => {        // video 118 step
 
   req.flash("formSubmitted", true);
   res.redirect("/reset-password");
+}
+
+
+export const getResetPasswordTokenPage = async (req, res) => {                   // video 121
+  const { token } = req.params;
+  const passwordResetData = await getResetPasswordToken(token);
+  if(!passwordResetData) return res.render("auth/wrong-reset-password-token");
+  
+  return res.render("auth/reset-password", {
+    formSubmitted: req.flash("formSubmitted")[0],
+    errors: req.flash("errors"),
+    token,
+  })
 }
