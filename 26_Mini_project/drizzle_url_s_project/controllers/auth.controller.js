@@ -26,6 +26,8 @@ import {
   createResetPasswordLink
 } from "../services/auth.services.js";
 
+import { getHtmlFromMjmlTemplate } from "../lib/get-html-from-mjml-templae.js";
+
 
 export const getRegisterPage = (req, res) => {// 1️⃣. Get "register.ejs" file & 'render'
   // video : 83. step 3. Pass errors
@@ -248,7 +250,14 @@ export const postForgotPassword = async (req, res) => {        // video 118 step
   const user = await findUserByEmail(data.email);
   if (user) {
     const resetPasswordLink = await createResetPasswordLink({ userId: user.id }); 
+
+    const html = await getHtmlFromMjmlTemplate("reset-password-email", {
+      name: user.name,
+      link: resetPasswordLink,
+    });
+
+    console.log(html);
   }
   
-  res.send("PostForgotPassword page");
+  res.redirect("/login");
 }
