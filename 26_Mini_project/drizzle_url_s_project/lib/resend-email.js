@@ -10,6 +10,7 @@ export const sendEmail = async ({ to, subject, html }) => {
       subject,
       html,
     });
+    
     if (error) {
       return console.error({ error });
     } else {
