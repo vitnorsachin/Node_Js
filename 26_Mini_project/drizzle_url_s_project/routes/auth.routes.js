@@ -46,9 +46,16 @@ router.route("/reset-password/:token")
 router.route("/google")
   .get(authControllers.getGoogleLoginpage);                  // video 124. google login page
 
-
 router.route("/google/callback")
-  .get(authControllers.getGoogleLoginCallback);                         // video 124
+  .get(authControllers.getGoogleLoginCallback);              // video 124
+
+
+router.route("/github")
+  .get(authControllers.getGithubLoginPage);                  // video 125. github login page
+
+router.route("/github/callback")
+  .get(authControllers.getGithubLoginCallback);              // video 125
+
 
   
 router.route("/logout").get(authControllers.logoutUser);
