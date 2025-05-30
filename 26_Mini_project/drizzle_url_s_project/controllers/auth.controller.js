@@ -26,11 +26,17 @@ import {
   findUserByEmail,
   createResetPasswordLink,
   getResetPasswordToken,
-  clearResetPasswordToken
+  clearResetPasswordToken,
+  getUserWithOauthId,
+  createUserWithOauth,
+  linkUserWithOauth
 } from "../services/auth.services.js";
 
 import { getHtmlFromMjmlTemplate } from "../lib/get-html-from-mjml-templae.js";
 import { sendEmail } from "../lib/resend-email.js";
+import { decodeIdToken, generateCodeVerifier, generateState } from "arctic";
+import { OAUTH_EXCHANGE_EXPIRY } from "../config/constants.js";
+import { google } from "../lib/oauth/google.js";
 
 
 export const getRegisterPage = (req, res) => {               // 1️⃣. Get "register.ejs" file & 'render'
@@ -93,6 +99,14 @@ export const postLogin = async (req, res) => {               // 2️⃣. Login
   if (!user) {
     req.flash("errors", "Invalid Email or Password"); // video 83. step 2
     return res.redirect("/login");
+  }
+
+  if(!user.password) {
+    req.flash(
+      "errors",
+      "You have created account using social login, Please login with your social account."
+    )
+    return res.redirect('/auth/login')
   }
 
   const isPasswordValid = await comparePassword(password, user.password); // video : 78
@@ -306,4 +320,108 @@ export const postResetPasswordToken = async (req, res) => {   // video 122
   await updateUserPassword({ userId:user.id, newPassword })
 
   return res.redirect("/login");
+}
+
+
+export const getGoogleLoginpage = async (req, res) => {       // video 124
+  if(req.user) return res.redirect("/");
+
+  const state = generateState();
+  const codeVerifier = generateCodeVerifier();
+  const url = google.createAuthorizationURL(state, codeVerifier, [
+    "openid",
+    "profile",
+    "email",
+  ])
+
+  const cookieConfig = {
+    httpOnly : true,
+    secure   : true,
+    maxAge   : OAUTH_EXCHANGE_EXPIRY,
+    sameSite : "lax"
+  }
+
+  res.cookie("google_oauth_state", state, cookieConfig);
+  res.cookie("google_code_verifier", codeVerifier, cookieConfig);
+
+  res.redirect(url.toString());
+}
+
+
+export const getGoogleLoginCallback = async (req, res) => {     // video 124
+  const { code, state } = req.query;
+  console.log(code, state);
+
+  const {
+    google_oauth_state: storedState,
+    google_code_verifier: codeVerifier,
+  } = req.cookies;
+
+  if (
+    !code ||
+    !state ||
+    !storedState ||
+    !codeVerifier ||
+    state !== storedState
+  ) {
+    req.flash(
+      "errors",
+      "Couldn't login with Google because of invalid login attempt. Please try again!"
+    );
+    return res.redirect("/login");
+  }
+
+  let tokens;
+  try {
+    // arctic will verify the code given by google with code verifier internally
+    tokens = await google.validateAuthorizationCode(code, codeVerifier);
+  } catch {
+    req.flash(
+      "errors",
+      "Couldn't login with Google because of invalid login attempt. Please try again!"
+    );
+    return res.redirect("/login");
+  }
+
+  console.log("token google: ", tokens);
+
+  const claims = decodeIdToken(tokens.idToken());
+  console.log("claim: ", claims);
+
+  const { sub: googleUserId, name, email, picture } = claims;
+
+  //! there are few things that we should do
+  // Condition 1: User already exists with google's oauth linked
+  // Condition 2: User already exists with the same email but google's oauth isn't linked
+  // Condition 3: User doesn't exist.
+
+  // if user is already linked then we will get the user
+  let user = await getUserWithOauthId({
+    provider: "google",
+    email,
+  });
+
+  // if user exists but user is not linked with oauth
+  if (user && !user.providerAccountId) {
+    await linkUserWithOauth({
+      userId: user.id,
+      provider: "google",
+      providerAccountId: googleUserId,
+      // avatarUrl: picture,
+    });
+  }
+
+  // if user doesn't exist
+  if (!user) {
+    user = await createUserWithOauth({
+      name,
+      email,
+      provider: "google",
+      providerAccountId: googleUserId,
+      // avatarUrl: picture,
+    });
+  }
+  await authenticateUser({ req, res, user, name, email });
+
+  res.redirect("/");
 }

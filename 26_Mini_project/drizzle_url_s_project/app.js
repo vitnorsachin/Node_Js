@@ -29,7 +29,7 @@ app.use((req, res, next)=>{// video:81 => here "user" variable value can access 
   res.locals.user = req.user; 
   return next();
 })
-
+debugger;
 app.use(authRoutes); // step 1️⃣. for create routes
 app.use(shortenerRoutes);
 

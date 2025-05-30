@@ -1,0 +1,24 @@
+1. Stage all modifications (new, modified, deleted files):
+cd : git add .
+
+
+2. Commit your staged changes:
+cd : git commit -m "Your concise commit message here"
+
+
+3. Push your committed changes to the remote:
+ a. already
+ cd : git push origin your-branch-name
+
+ b. If it's the first push of a new branch, use this once:
+ cd : git push -u origin your-branch-name
+
+
+4. Pull the latest changes from the remote:
+cd : git pull origin your-branch-name
+
+
+# All Commands
+git add .
+git commit -m "feat: Add new file for feature X"
+git push

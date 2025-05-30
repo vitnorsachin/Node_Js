@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "dependencies": {
+    "arctic": "^3.7.0",
     "argon2": "^0.43.0",
     "chalk": "^5.4.1",
     "connect-flash": "^0.1.1",

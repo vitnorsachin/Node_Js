@@ -1,0 +1,3 @@
+when error got which is table already exist then 
+
+delete "meta" folder only

@@ -1,7 +1,7 @@
 // 4️⃣. Create schema (create table, collection) for urls and shortcodes
 // import { relations } from "drizzle-orm";
 import { relations, sql } from "drizzle-orm";
-import { boolean, int, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const shortLinksTable = mysqlTable("short_link", {
   id        : int().autoincrement().primaryKey(),
@@ -25,7 +25,7 @@ export const sessionsTable = mysqlTable("sessions",{
 })
 
 
-// video 98
+// // video 98
 export const verifyEmailTokensTable = mysqlTable("is_email_valid", {
   id        : int().autoincrement().primaryKey(),
   userId    : int("user_id").notNull().references(() => usersTable.id, {onDelete: "cascade"}),
@@ -36,7 +36,7 @@ export const verifyEmailTokensTable = mysqlTable("is_email_valid", {
 
 
 
-// video 117. for reset password
+// // video 117. for reset password
 export const passwordResetTokensTable = mysqlTable("password_reset_tokens", {
   id        : int("id").autoincrement().primaryKey(),
   userId    : int("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }).unique(),
@@ -46,13 +46,22 @@ export const passwordResetTokensTable = mysqlTable("password_reset_tokens", {
 });
 
 
+// video 124. Complete login with google (OauthAccountTable)
+export const oauthAccountsTable = mysqlTable("oauth_accounts", {
+  id                : int("id").autoincrement().primaryKey(),
+  userId            : int("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  provider          : mysqlEnum("provider", ["google", "github"]).notNull(),
+  providerAccountId : varchar("provider_account_id", { length: 255 }).notNull().unique(),
+  createdAt         : timestamp("created_at").defaultNow().notNull(),
+});
+
 
 // Create schema for name and password for registerpage page
 export const usersTable = mysqlTable("users", {
   id           : int().autoincrement().primaryKey(),
   name         : varchar({ length: 255 }).notNull(),
   email        : varchar({ length: 255 }).notNull().unique(),
-  password     : varchar({ length: 255}).notNull(),
+  password     : varchar({ length: 255}),                            // v 124
   isEmailValid : boolean("is_email_valid").default(false).notNull(),
   createdAt    : timestamp("created_at").defaultNow().notNull(),
   updatedAt    : timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
