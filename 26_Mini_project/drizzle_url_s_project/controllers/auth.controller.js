@@ -2,6 +2,7 @@ import {
   forgotPasswordSchema,
   loginUserSchema,
   registerUserSchema, 
+  setPasswordSchema, 
   verifyEmailSchema, 
   verifyPasswordSchema, 
   verifyResetPasswordSchema, 
@@ -144,6 +145,7 @@ export const getProfilePage = async (req, res) => {          // video 81. For ge
       name         : user.name,
       email        : user.email,
       isEmailValid : user.isEmailValid,    // video 97
+      hashPassword : Boolean(user.password),
       createdAt    : user.createdAt,
       links        : userShortLinks,
     },
@@ -199,7 +201,11 @@ export const getEditProfilePage = async (req, res) => {      // video 112. step 
   const user = await findUserById(req.user.id);
   if(!user) return res.status(404).send("User not found");
 
-  res.render("auth/edit-profile", { name: user.name, errors: req.flash("errors"), avatarUrl: 'hello' });
+  res.render("auth/edit-profile", { 
+    name: user.name, 
+    avatarUrl: user.avatarUrl, 
+    errors: req.flash("errors"), 
+  });
 }
 
 export const postEditProfile = async (req, res) => {         // video 112. step 2
@@ -212,7 +218,15 @@ export const postEditProfile = async (req, res) => {         // video 112. step 
     return res.redirect("/edit-profile");
   }
 
-  await updateUserByName({ userId: req.user.id, name: data.name });
+  // await updateUserByName({ userId: req.user.id, name: data.name });
+  
+  const fileUrl = req.file ? `uploads/avatar/${req.file.filename}` : undefined; // v 126
+  await updateUserByName({
+    userId: req.user.id,
+    name: data.name,
+    avatarUrl: fileUrl,
+  });
+
   res.redirect("/profile");
 }
 
@@ -524,3 +538,40 @@ export const getGithubLoginCallback = async (req, res) => {     // video 125
 
   res.redirect("/");
 };
+
+
+export const getSetPasswordPage = async (req, res) => {         // video 126
+  if(!req.user) return res.redirect("/");
+
+  return res.render('auth/set-password', {
+    errors: req.flash("errors"),
+  });
+};
+
+
+export const postSetPassword = async (req, res) => {            // video 126
+  if (!req.user) return res.redirect("/");
+
+  const { data, error } = setPasswordSchema.safeParse(req.body);
+
+  if (error) {
+    const errorMessages = error.errors.map((err) => err.message);
+    req.flash("errors", errorMessages);
+    return res.redirect("/set-password");
+  }
+
+  const { newPassword } = data;
+
+  const user = await findUserById(req.user.id);
+  if (user.password) {
+    req.flash(
+      "errors",
+      "You already have your Password, Instead Change your password"
+    );
+    return res.redirect("/set-password");
+  }
+
+  await updateUserPassword({ userId: req.user.id, newPassword });
+
+  return res.redirect("/profile");
+}

@@ -1,6 +1,8 @@
 // step 2️⃣. Create routes
 import { Router } from "express";
 import * as authControllers from "../controllers/auth.controller.js";
+import multer from "multer";
+import path from 'path';
 
 const router = Router();
 
@@ -23,9 +25,36 @@ router.route("/resend-verification-link").post(authControllers.resendVerificatio
 router.route("/verify-email-token").get(authControllers.verifyEmailToken);               // video 105
 
 
+
+const avatarStorage = multer.diskStorage({                     // video 126. upload file in node.js
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads/avatar");
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}_${Math.random()}${ext}`);
+  },
+});
+
+const avatarFileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed!"), false);
+  }
+};
+
+const avatarUpload = multer({
+  storage: avatarStorage,
+  fileFilter: avatarFileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5mb
+});
+
+
 router.route("/edit-profile")                                  // video 112. step 1. for edit profile name
   .get(authControllers.getEditProfilePage)
-  .post(authControllers.postEditProfile);
+  .post(avatarUpload.single("avatar"), authControllers.postEditProfile);  // v 126.
+  // .post(authControllers.postEditProfile);
 
 
 router.route("/change-password")
@@ -57,6 +86,10 @@ router.route("/github/callback")
   .get(authControllers.getGithubLoginCallback);              // video 125
 
 
+router.route("/set-password")
+  .get(authControllers.getSetPasswordPage)                   // video 126.
+  .post(authControllers.postSetPassword);
+  
   
 router.route("/logout").get(authControllers.logoutUser);
 
