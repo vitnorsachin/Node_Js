@@ -743,16 +743,35 @@ footer .social-links a:hover {
   margin-right: 1.5rem;
 }
 
-.avatar-placeholder {
-  width: 80px;
-  height: 80px;
+/* .avatar-placeholder {
+  width: 85px;
+  height: 85px;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid rgba(255, 255, 255, 0.5);
+  border: 3px solid #E91E63;
+} */
+.avatar-placeholder {
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+  background: conic-gradient(
+      red,
+      yellow,
+      green,
+      blue,
+      red
+  );
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-origin: border-box;
+  background-clip: border-box;
 }
+
 
 .avatar-placeholder img {
   border-radius: 50%;
@@ -1308,6 +1327,22 @@ footer .social-links a:hover {
 }
 
 #avatar-preview-img {
-  width: 15rem;
+  width: 12rem;
   height: 12rem;
+}
+
+#remove-avatar{
+  padding: 1px 4px;
+  color: red;
+  font-weight: bold;
+  font-family: sans-serif;
+  cursor: pointer;
+}
+
+#avatar{
+  padding: 1px 4px;
+  color: green;
+  font-weight: bold;
+  font-family: sans-serif;
+  cursor: pointer;
 }

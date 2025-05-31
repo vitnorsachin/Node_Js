@@ -405,12 +405,12 @@ export async function linkUserWithOauth({ userId,provider,providerAccountId,avat
     providerAccountId,
   });
 
-  // if (avatarUrl) {
-  //   await db
-  //     .update(usersTable)
-  //     .set({ avatarUrl })
-  //     .where(and(eq(usersTable.id, userId), isNull(usersTable.avatarUrl)));
-  // }
+  if (avatarUrl) {
+    await db
+      .update(usersTable)
+      .set({ avatarUrl })
+      .where(and(eq(usersTable.id, userId), isNull(usersTable.avatarUrl)));
+  }
 }
 
 export async function createUserWithOauth({ name, email, provider, providerAccountId, }) { // v 124
@@ -421,7 +421,7 @@ export async function createUserWithOauth({ name, email, provider, providerAccou
         email,
         name,
         // password: "",
-        // avatarUrl,
+        avatarUrl,  
         isEmailValid: true, // we know that google's email are valid
       })
       .$returningId();

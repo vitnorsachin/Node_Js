@@ -18,6 +18,7 @@ cd : git commit -m "Your concise commit message here"
 cd : git pull origin your-branch-name
 
 
+
 # All Commands
 git add .
 git commit -m "feat: Add new file for feature X"
