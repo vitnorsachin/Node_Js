@@ -1,8 +1,8 @@
 // step 2️⃣. Create routes
 import { Router } from "express";
 import * as authControllers from "../controllers/auth.controller.js";
-import multer from "multer";
-import path from 'path';
+import multer from "multer"; 
+import path from 'path'; 
 
 const router = Router();
 
@@ -26,7 +26,7 @@ router.route("/verify-email-token").get(authControllers.verifyEmailToken);      
 
 
 
-const avatarStorage = multer.diskStorage({                     // video 126. upload file in node.js
+const avatarStorage = multer.diskStorage({              // v 127
   destination: (req, file, cb) => {
     cb(null, "public/uploads/avatar");
   },
@@ -36,7 +36,7 @@ const avatarStorage = multer.diskStorage({                     // video 126. upl
   },
 });
 
-const avatarFileFilter = (req, file, cb) => {
+const avatarFileFilter = (req, file, cb) => {            // v 127
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
@@ -44,7 +44,7 @@ const avatarFileFilter = (req, file, cb) => {
   }
 };
 
-const avatarUpload = multer({
+const avatarUpload = multer({                           // v 127
   storage: avatarStorage,
   fileFilter: avatarFileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5mb
@@ -53,7 +53,7 @@ const avatarUpload = multer({
 
 router.route("/edit-profile")                                  // video 112. step 1. for edit profile name
   .get(authControllers.getEditProfilePage)
-  .post(avatarUpload.single("avatar"), authControllers.postEditProfile);  // v 126.
+  .post(avatarUpload.single("avatar"), authControllers.postEditProfile); // v 127
   // .post(authControllers.postEditProfile);
 
 

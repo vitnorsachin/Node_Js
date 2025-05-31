@@ -144,10 +144,11 @@ export const getProfilePage = async (req, res) => {          // video 81. For ge
       id           : user.id,
       name         : user.name,
       email        : user.email,
-      isEmailValid : user.isEmailValid,    // video 97
+      isEmailValid : user.isEmailValid,         // video 97
       hashPassword : Boolean(user.password),
       createdAt    : user.createdAt,
       links        : userShortLinks,
+      avatarUrl: user.avatarUrl,                // video 126
     },
   });
 };
@@ -199,11 +200,12 @@ export const getEditProfilePage = async (req, res) => {      // video 112. step 
   if(!req.user) return res.redirect("/");
 
   const user = await findUserById(req.user.id);
+  console.log("User : ", user);
   if(!user) return res.status(404).send("User not found");
 
   res.render("auth/edit-profile", { 
     name: user.name, 
-    avatarUrl: user.avatarUrl, 
+    avatarUrl: user.avatarUrl,                              // video 127
     errors: req.flash("errors"), 
   });
 }
@@ -220,7 +222,7 @@ export const postEditProfile = async (req, res) => {         // video 112. step 
 
   // await updateUserByName({ userId: req.user.id, name: data.name });
   
-  const fileUrl = req.file ? `uploads/avatar/${req.file.filename}` : undefined; // v 126
+  const fileUrl = req.file ? `uploads/avatar/${req.file.filename}` : undefined;  // video 127
   await updateUserByName({
     userId: req.user.id,
     name: data.name,

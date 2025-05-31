@@ -87,7 +87,7 @@ const passwordSchema = z                                             // video 12
         message: "Confirm Password must be no more than 100 characters.",
       }),
   })
-  .refine((data) => data.newPassword === data.confirmPassword, {
+  .refine((data) => data.newPassword === data.confirmPassword, {   // this check newPass=confirmPass
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });

@@ -311,12 +311,12 @@ export const sendNewVerifyEmailLink = async ({email, userId}) => {    // video 1
 }
 
 
-export const updateUserByName = async ({ userId, name }) => {          // video 112. step 3
+export const updateUserByName = async ({ userId, name, avatarUrl }) => {  // v 127
   return await db
-  .update(usersTable)
-  .set({ name: name })
-  .where(eq(usersTable.id, userId));
-}
+    .update(usersTable)
+    .set({ name: name, avatarUrl: avatarUrl })
+    .where(eq(usersTable.id, userId));
+};
 
 export const updateUserPassword = async ({ userId, newPassword }) => { // video 116
   const newHashPassword = await hashPassword(newPassword);
@@ -336,7 +336,7 @@ export const findUserByEmail = async ( email ) => {                    // video 
   return user;
 }
 
-export const createResetPasswordLink = async ({ userId }) => {                   // video 118 step 3
+export const createResetPasswordLink = async ({ userId }) => {         // video 118 step 3
   const randomToken = crypto.randomBytes(32).toString('hex');
   const tokenHash = crypto.createHash('sha256').update(randomToken).digest("hex");
 
